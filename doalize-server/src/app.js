@@ -1,18 +1,41 @@
-import express from 'express';
-import cors from 'cors';
-import dotenv from 'dotenv';
-import routes from './routes/index.js';
+import React from 'react';
 
-dotenv.config();
+import { StatusBar } from 'expo-status-bar';
 
-const app = express();
+import { NavigationContainer } from '@react-navigation/native';
 
-app.use(cors());
+import AppRoutes from './src/navigation/AppRoutes';
 
-app.use(express.json());
+import { AuthProvider } from './src/context/AuthContext';
 
-app.use('/uploads', express.static('uploads'));
+import { ThemeProvider } from './src/context/ThemeContext';
 
-app.use(routes);
+import { SocketProvider } from './src/context/SocketContext';
 
-export default app;
+
+export default function App() {
+
+  return (
+
+    <ThemeProvider>
+
+      <AuthProvider>
+
+        <SocketProvider>
+
+          <NavigationContainer>
+
+            <StatusBar style="auto" />
+
+            <AppRoutes />
+
+          </NavigationContainer>
+
+        </SocketProvider>
+
+      </AuthProvider>
+
+    </ThemeProvider>
+
+  );
+}
