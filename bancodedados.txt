@@ -1,0 +1,13 @@
+LIGAR NO XAMPP O APACHE E MYSQL
+
+CREATE DATABASE doalize
+CHARACTER SET utf8mb4
+COLLATE utf8mb4_general_ci;
+
+USE doalize;
+
+SHOW DATABASES;
+
+
+RODAR O PROJETO
+    npm run dev (no backend)

@@ -3,7 +3,7 @@ import { io } from 'socket.io-client';
 
 // ALTERE PARA O IP DO SEU BACKEND
 const SOCKET_URL =
-  'http://192.168.0.10:3333';
+  'http://192.168.77.101:3333';
 
 
 // SOCKET

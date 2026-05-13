@@ -4,7 +4,7 @@ import axios from 'axios';
 // ALTERE PARA O IP DO SEU BACKEND
 const api = axios.create({
 
-  baseURL: 'http://192.168.0.10:3333',
+  baseURL: 'http://192.168.77.101:3333',
 
   timeout: 10000,
 
