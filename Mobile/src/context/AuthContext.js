@@ -26,41 +26,62 @@ export function AuthProvider({ children }) {
 
     try {
 
-      const token = await AsyncStorage.getItem('@doalize_token');
+      const token =
+        await AsyncStorage.getItem(
+          '@doalize_token'
+        );
 
-      const userData = await AsyncStorage.getItem('@doalize_user');
+      const userData =
+        await AsyncStorage.getItem(
+          '@doalize_user'
+        );
 
 
       if (token && userData) {
 
-        api.defaults.headers.Authorization = `Bearer ${token}`;
+        api.defaults.headers.Authorization =
+          `Bearer ${token}`;
 
-        setUser(JSON.parse(userData));
+        setUser(
+          JSON.parse(userData)
+        );
       }
 
     } catch (error) {
 
-      console.log('Erro ao carregar usuário:', error);
+      console.log(
+        'Erro ao carregar usuário:',
+        error
+      );
 
     } finally {
 
       setLoading(false);
-
     }
   }
 
 
   // LOGIN
-  async function signIn(email, password) {
+  async function signIn(
+    email,
+    password
+  ) {
 
     try {
 
-      const response = await api.post('/auth/login', {
-        email,
-        password,
-      });
+      const response =
+        await api.post(
+          '/auth/login',
+          {
+            email,
+            password,
+          }
+        );
 
-      const { token, user } = response.data;
+      const {
+        token,
+        user,
+      } = response.data;
 
 
       // SALVAR TOKEN
@@ -77,23 +98,31 @@ export function AuthProvider({ children }) {
       );
 
 
-      api.defaults.headers.Authorization = `Bearer ${token}`;
+      // HEADER GLOBAL
+      api.defaults.headers.Authorization =
+        `Bearer ${token}`;
 
-      setUser(user);
+
+      // ATUALIZAR USER
+      setUser({
+        ...user,
+      });
+
 
       return {
         success: true,
+        user,
       };
 
     } catch (error) {
 
       return {
         success: false,
+
         message:
           error.response?.data?.message ||
           'Erro ao fazer login',
       };
-
     }
   }
 
@@ -103,7 +132,11 @@ export function AuthProvider({ children }) {
 
     try {
 
-      const response = await api.post('/auth/register', data);
+      const response =
+        await api.post(
+          '/auth/register',
+          data
+        );
 
       return {
         success: true,
@@ -114,11 +147,11 @@ export function AuthProvider({ children }) {
 
       return {
         success: false,
+
         message:
           error.response?.data?.message ||
           'Erro ao cadastrar usuário',
       };
-
     }
   }
 
@@ -126,16 +159,22 @@ export function AuthProvider({ children }) {
   // LOGOUT
   async function signOut() {
 
-    await AsyncStorage.removeItem('@doalize_token');
+    await AsyncStorage.removeItem(
+      '@doalize_token'
+    );
 
-    await AsyncStorage.removeItem('@doalize_user');
+    await AsyncStorage.removeItem(
+      '@doalize_user'
+    );
 
     setUser(null);
   }
 
 
   // UPDATE USER
-  async function updateUser(userData) {
+  async function updateUser(
+    userData
+  ) {
 
     setUser(userData);
 
@@ -155,8 +194,10 @@ export function AuthProvider({ children }) {
 
 
   return (
+
     <AuthContext.Provider
       value={{
+
         user,
         loading,
 
@@ -169,7 +210,9 @@ export function AuthProvider({ children }) {
         updateUser,
       }}
     >
+
       {children}
+
     </AuthContext.Provider>
   );
 }
