@@ -10,39 +10,52 @@ import {
   Alert,
 } from 'react-native';
 
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation }
+  from '@react-navigation/native';
 
-import Input from '../../components/Input';
+import Input
+  from '../../components/Input';
 
-import Button from '../../components/Button';
+import Button
+  from '../../components/Button';
 
-import { useAuth } from '../../hooks/useAuth';
+import { useAuth }
+  from '../../hooks/useAuth';
 
-import { useTheme } from '../../hooks/useTheme';
+import { useTheme }
+  from '../../hooks/useTheme';
 
-import styles from './styles';
+import styles
+  from './styles';
 
 
 export default function LoginScreen() {
 
-  const navigation = useNavigation();
+  const navigation =
+    useNavigation();
 
-  const { signIn } = useAuth();
+  const { signIn } =
+    useAuth();
 
-  const { theme } = useTheme();
+  const { theme } =
+    useTheme();
 
 
-  const [email, setEmail] = useState('');
+  const [email, setEmail] =
+    useState('');
 
-  const [password, setPassword] = useState('');
+  const [password, setPassword] =
+    useState('');
 
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] =
+    useState(false);
 
 
   // LOGIN
   async function handleLogin() {
 
     if (!email || !password) {
+
       return Alert.alert(
         'Atenção',
         'Preencha todos os campos.'
@@ -53,20 +66,34 @@ export default function LoginScreen() {
 
       setLoading(true);
 
-      const response = await signIn(
-        email,
-        password
-      );
+      const response =
+        await signIn(
+          email,
+          password
+        );
+
+
+      console.log(response);
+
 
       if (!response.success) {
 
-        Alert.alert(
+        return Alert.alert(
           'Erro',
           response.message
         );
       }
 
+
+      // LOGIN OK
+      console.log(
+        'LOGIN REALIZADO'
+      );
+
+
     } catch (error) {
+
+      console.log(error);
 
       Alert.alert(
         'Erro',
@@ -86,7 +113,8 @@ export default function LoginScreen() {
       style={[
         styles.container,
         {
-          backgroundColor: theme.background,
+          backgroundColor:
+            theme.background,
         },
       ]}
 
@@ -98,18 +126,28 @@ export default function LoginScreen() {
     >
 
       <ScrollView
-        contentContainerStyle={styles.content}
-        showsVerticalScrollIndicator={false}
+        contentContainerStyle={
+          styles.content
+        }
+
+        showsVerticalScrollIndicator={
+          false
+        }
       >
 
         {/* LOGO */}
-        <View style={styles.logoContainer}>
+        <View
+          style={
+            styles.logoContainer
+          }
+        >
 
           <Text
             style={[
               styles.logo,
               {
-                color: theme.primary,
+                color:
+                  theme.primary,
               },
             ]}
           >
@@ -120,27 +158,35 @@ export default function LoginScreen() {
             style={[
               styles.subtitle,
               {
-                color: theme.textSecondary,
+                color:
+                  theme.textSecondary,
               },
             ]}
           >
-            Conectando pessoas para ajudar.
+            Conectando pessoas
+            para ajudar.
           </Text>
 
         </View>
 
 
         {/* FORM */}
-        <View style={styles.form}>
+        <View
+          style={styles.form}
+        >
 
           <Input
             placeholder="E-mail"
 
             value={email}
 
-            onChangeText={setEmail}
+            onChangeText={
+              setEmail
+            }
 
-            keyboardType="email-address"
+            keyboardType="
+              email-address
+            "
           />
 
           <Input
@@ -148,7 +194,9 @@ export default function LoginScreen() {
 
             value={password}
 
-            onChangeText={setPassword}
+            onChangeText={
+              setPassword
+            }
 
             secureTextEntry
           />
@@ -156,7 +204,9 @@ export default function LoginScreen() {
           <Button
             title="Entrar"
 
-            onPress={handleLogin}
+            onPress={
+              handleLogin
+            }
 
             loading={loading}
           />
@@ -165,13 +215,16 @@ export default function LoginScreen() {
 
 
         {/* CADASTRO */}
-        <View style={styles.footer}>
+        <View
+          style={styles.footer}
+        >
 
           <Text
             style={[
               styles.footerText,
               {
-                color: theme.textSecondary,
+                color:
+                  theme.textSecondary,
               },
             ]}
           >
@@ -185,16 +238,19 @@ export default function LoginScreen() {
               )
             }
           >
+
             <Text
               style={[
                 styles.registerText,
                 {
-                  color: theme.primary,
+                  color:
+                    theme.primary,
                 },
               ]}
             >
               Criar conta
             </Text>
+
           </TouchableOpacity>
 
         </View>

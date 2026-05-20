@@ -1,34 +1,79 @@
-import React, { useContext } from 'react';
+import React, {
+  useContext,
+} from 'react';
 
-import { NavigationContainer } from '@react-navigation/native';
+import {
+  NavigationContainer,
+} from '@react-navigation/native';
+
+import {
+  createNativeStackNavigator,
+} from '@react-navigation/native-stack';
+
+import {
+  AuthContext,
+} from '../context/AuthContext';
 
 
 // ROTAS
-import AppRoutes from './AppRoutes';
+import AuthRoutes
+  from './AuthRoutes';
 
-import AuthRoutes from './AuthRoutes';
+import AppRoutes
+  from './AppRoutes';
 
 
-// CONTEXT
-import { AuthContext } from '../context/AuthContext';
+const Stack =
+  createNativeStackNavigator();
 
 
 // NAVIGATION
 export default function Navigation() {
 
-  const { user, loading } = useContext(AuthContext);
+  const {
+    user,
+    loading,
+  } = useContext(AuthContext);
 
 
-  // LOADING
+  console.log(
+    'USER:',
+    user
+  );
+
+
   if (loading) {
     return null;
   }
 
 
   return (
+
     <NavigationContainer>
 
-      {user ? <AppRoutes /> : <AuthRoutes />}
+      <Stack.Navigator
+        screenOptions={{
+          headerShown: false,
+        }}
+      >
+
+        {user ? (
+
+          <Stack.Screen
+            name="App"
+            component={AppRoutes}
+          />
+
+        ) : (
+
+          <Stack.Screen
+            name="Auth"
+            component={AuthRoutes}
+          />
+
+        )}
+
+      </Stack.Navigator>
 
     </NavigationContainer>
   );

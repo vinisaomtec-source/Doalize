@@ -1,18 +1,25 @@
 import React from 'react';
 
-import { StatusBar } from 'expo-status-bar';
+import { StatusBar }
+  from 'expo-status-bar';
 
-import { NavigationContainer } from '@react-navigation/native';
+import {
+  AuthProvider,
+} from './src/context/AuthContext';
 
-import AppRoutes from './src/navigation/AuthRoutes';
+import {
+  ThemeProvider,
+} from './src/context/ThemeContext';
 
-import { AuthProvider } from './src/context/AuthContext';
+import {
+  SocketProvider,
+} from './src/context/SocketContext';
 
-import { ThemeProvider } from './src/context/ThemeContext';
+import Navigation
+  from './src/navigation';
 
-import { SocketProvider } from './src/context/SocketContext';
 
-
+// APP
 export default function App() {
 
   return (
@@ -23,19 +30,14 @@ export default function App() {
 
         <SocketProvider>
 
-          <NavigationContainer>
+          <StatusBar style="auto" />
 
-            <StatusBar style="auto" />
-
-            <AppRoutes />
-
-          </NavigationContainer>
+          <Navigation />
 
         </SocketProvider>
 
       </AuthProvider>
 
     </ThemeProvider>
-
   );
 }

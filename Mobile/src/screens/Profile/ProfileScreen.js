@@ -16,7 +16,7 @@ import { useTheme } from '../../hooks/useTheme';
 
 import { useAuth } from '../../hooks/useAuth';
 
-import styles from './styles';
+import styles from './style';
 
 
 export default function ProfileScreen({
