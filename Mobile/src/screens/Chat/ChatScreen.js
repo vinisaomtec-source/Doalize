@@ -11,50 +11,100 @@ import {
   TouchableOpacity,
   KeyboardAvoidingView,
   Platform,
-  Image,
 } from 'react-native';
 
-import { Ionicons } from '@expo/vector-icons';
+import {
+  Ionicons,
+} from '@expo/vector-icons';
 
-import * as ImagePicker from 'expo-image-picker';
+import Header
+  from '../../components/Header';
 
-import Header from '../../components/Header';
+import ChatBubble
+  from '../../components/ChatBubble';
 
-import ChatBubble from '../../components/ChatBubble';
+import {
+  useTheme,
+} from '../../hooks/useTheme';
 
-import { useTheme } from '../../hooks/useTheme';
+import {
+  useSocket,
+} from '../../hooks/useSocket';
 
-import { useSocket } from '../../hooks/useSocket';
+import {
+  useAuth,
+} from '../../hooks/useAuth';
 
-import { useAuth } from '../../hooks/useAuth';
+import api
+  from '../../services/api';
 
-import styles from './styles';
+import styles
+  from './styles';
 
 
 export default function ChatScreen({
   route,
 }) {
 
-  const { chatId, user } = route.params;
+  const {
+    chatId,
+    user,
+  } = route.params;
 
-  const { theme } = useTheme();
+  const { theme } =
+    useTheme();
 
-  const { socket, joinRoom, sendMessage } =
-    useSocket();
+  const {
+    socket,
+    joinRoom,
+    sendMessage,
+  } = useSocket();
 
-  const { user: currentUser } = useAuth();
-
-
-  const flatListRef = useRef(null);
-
-
-  const [message, setMessage] = useState('');
-
-  const [messages, setMessages] = useState([]);
+  const {
+    user: currentUser,
+  } = useAuth();
 
 
-  // ENTRAR NO CHAT
+  const flatListRef =
+    useRef(null);
+
+
+  const [message, setMessage] =
+    useState('');
+
+  const [messages, setMessages] =
+    useState([]);
+
+
+  // BUSCAR MENSAGENS
+  async function loadMessages() {
+
+    try {
+
+      const response =
+        await api.get(
+          `/chat/messages/${user.id}`
+        );
+
+      setMessages(
+        response.data
+      );
+
+    } catch (error) {
+
+      console.log(
+        'Erro ao buscar mensagens:',
+        error.response?.data ||
+        error.message
+      );
+    }
+  }
+
+
+  // INIT
   useEffect(() => {
+
+    loadMessages();
 
     joinRoom(chatId);
 
@@ -63,119 +113,144 @@ export default function ChatScreen({
       'receive_message',
       (newMessage) => {
 
-        setMessages((oldMessages) => [
-          ...oldMessages,
-          newMessage,
-        ]);
+        const isCurrentChat =
+
+          Number(
+            newMessage.sender_id
+          ) === Number(user.id)
+
+          ||
+
+          Number(
+            newMessage.receiver_id
+          ) === Number(user.id);
+
+
+        if (isCurrentChat) {
+
+          setMessages(
+            (oldMessages) => {
+
+              const exists =
+                oldMessages.some(
+                  (msg) =>
+                    msg.id ===
+                    newMessage.id
+                );
+
+              if (exists) {
+                return oldMessages;
+              }
+
+              return [
+                ...oldMessages,
+                newMessage,
+              ];
+            }
+          );
+
+
+          setTimeout(() => {
+
+            flatListRef.current
+              ?.scrollToEnd({
+                animated: true,
+              });
+
+          }, 100);
+        }
       }
     );
 
 
     return () => {
 
-      socket.off('receive_message');
-
+      socket.off(
+        'receive_message'
+      );
     };
 
   }, []);
 
 
   // ENVIAR TEXTO
-  function handleSendMessage() {
+  async function handleSendMessage() {
 
-    if (!message.trim()) return;
+    if (!message.trim()) {
+      return;
+    }
 
+    try {
 
-    const newMessage = {
-      chatId,
+      const body = {
 
-      senderId: currentUser.id,
+        receiver_id:
+          user.id,
 
-      type: 'text',
-
-      content: message,
-
-      time: new Date().toLocaleTimeString(
-        [],
-        {
-          hour: '2-digit',
-          minute: '2-digit',
-        }
-      ),
-    };
-
-
-    sendMessage(newMessage);
-
-    setMessages((old) => [
-      ...old,
-      newMessage,
-    ]);
-
-    setMessage('');
-
-
-    setTimeout(() => {
-      flatListRef.current?.scrollToEnd({
-        animated: true,
-      });
-    }, 100);
-  }
-
-
-  // ENVIAR IMAGEM
-  async function handlePickImage() {
-
-    const result =
-      await ImagePicker.launchImageLibraryAsync({
-        mediaTypes:
-          ImagePicker.MediaTypeOptions.Images,
-
-        quality: 0.7,
-      });
-
-
-    if (!result.canceled) {
-
-      const imageUri =
-        result.assets[0].uri;
-
-
-      const newMessage = {
-        chatId,
-
-        senderId: currentUser.id,
-
-        type: 'image',
-
-        content: imageUri,
-
-        time: new Date().toLocaleTimeString(
-          [],
-          {
-            hour: '2-digit',
-            minute: '2-digit',
-          }
-        ),
+        message:
+          message,
       };
 
 
-      sendMessage(newMessage);
+      // SALVAR NO BANCO
+      const response =
+        await api.post(
+          '/chat/send',
+          body
+        );
 
-      setMessages((old) => [
-        ...old,
-        newMessage,
-      ]);
+
+      // MENSAGEM SALVA
+      const savedMessage =
+        response.data;
+
+
+      // SOCKET
+      sendMessage(
+        savedMessage
+      );
+
+
+      // ADICIONAR LOCAL
+      setMessages(
+        (old) => [
+
+          ...old,
+          savedMessage,
+        ]
+      );
+
+      setMessage('');
+
+
+      setTimeout(() => {
+
+        flatListRef.current
+          ?.scrollToEnd({
+            animated: true,
+          });
+
+      }, 100);
+
+    } catch (error) {
+
+      console.log(
+        'Erro ao enviar:',
+        error.response?.data ||
+        error.message
+      );
     }
   }
 
 
   return (
+
     <KeyboardAvoidingView
       style={[
         styles.container,
         {
-          backgroundColor: theme.background,
+          backgroundColor:
+            theme.background,
         },
       ]}
 
@@ -200,17 +275,22 @@ export default function ChatScreen({
 
         data={messages}
 
-        keyExtractor={(_, index) =>
-          String(index)
+        keyExtractor={(item, index) =>
+          String(
+            item.id || index
+          )
         }
 
         contentContainerStyle={
           styles.messagesContainer
         }
 
-        showsVerticalScrollIndicator={false}
+        showsVerticalScrollIndicator={
+          false
+        }
 
         renderItem={({ item }) => (
+
           <ChatBubble
             message={item}
 
@@ -219,6 +299,14 @@ export default function ChatScreen({
             }
           />
         )}
+
+        onContentSizeChange={() => {
+
+          flatListRef.current
+            ?.scrollToEnd({
+              animated: true,
+            });
+        }}
       />
 
 
@@ -227,31 +315,22 @@ export default function ChatScreen({
         style={[
           styles.inputContainer,
           {
-            backgroundColor: theme.card,
-            borderTopColor: theme.border,
+            backgroundColor:
+              theme.card,
+
+            borderTopColor:
+              theme.border,
           },
         ]}
       >
 
-        {/* IMAGEM */}
-        <TouchableOpacity
-          onPress={handlePickImage}
-          style={styles.iconButton}
-        >
-          <Ionicons
-            name="image"
-            size={24}
-            color={theme.primary}
-          />
-        </TouchableOpacity>
-
-
-        {/* TEXTO */}
         <TextInput
           style={[
             styles.input,
             {
-              color: theme.text,
+              color:
+                theme.text,
+
               backgroundColor:
                 theme.inputBackground,
             },
@@ -271,14 +350,23 @@ export default function ChatScreen({
 
         {/* ENVIAR */}
         <TouchableOpacity
-          onPress={handleSendMessage}
-          style={styles.sendButton}
+          onPress={
+            handleSendMessage
+          }
+
+          style={
+            styles.sendButton
+          }
         >
+
           <Ionicons
             name="send"
+
             size={22}
+
             color="#ffffff"
           />
+
         </TouchableOpacity>
 
       </View>

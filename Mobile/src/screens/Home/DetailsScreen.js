@@ -8,13 +8,19 @@ import {
   TouchableOpacity,
 } from 'react-native';
 
-import { Ionicons } from '@expo/vector-icons';
+import {
+  Ionicons,
+} from '@expo/vector-icons';
 
-import Header from '../../components/Header';
+import Header
+  from '../../components/Header';
 
-import { useTheme } from '../../hooks/useTheme';
+import {
+  useTheme,
+} from '../../hooks/useTheme';
 
-import styles from './styles';
+import styles
+  from './styles';
 
 
 export default function DetailsScreen({
@@ -22,20 +28,28 @@ export default function DetailsScreen({
   navigation,
 }) {
 
-  const { post } = route.params;
+  const { post } =
+    route.params;
 
-  const { theme } = useTheme();
+  const { theme } =
+    useTheme();
 
 
   // ABRIR CHAT
   function handleOpenChat() {
 
     navigation.navigate(
-      'ChatScreen',
+      'Contatos',
       {
-        chatId: post.user.id,
+        screen: 'ChatScreen',
 
-        user: post.user,
+        params: {
+          chatId:
+            post.user.id,
+
+          user:
+            post.user,
+        },
       }
     );
   }
@@ -46,7 +60,8 @@ export default function DetailsScreen({
       style={[
         styles.container,
         {
-          backgroundColor: theme.background,
+          backgroundColor:
+            theme.background,
         },
       ]}
     >
@@ -60,11 +75,17 @@ export default function DetailsScreen({
 
 
       <ScrollView
-        showsVerticalScrollIndicator={false}
+        showsVerticalScrollIndicator={
+          false
+        }
       >
 
         {/* USUÁRIO */}
-        <View style={styles.userContainer}>
+        <View
+          style={
+            styles.userContainer
+          }
+        >
 
           <Image
             source={{
@@ -73,17 +94,24 @@ export default function DetailsScreen({
                 'https://i.pravatar.cc/150',
             }}
 
-            style={styles.avatar}
+            style={
+              styles.avatar
+            }
           />
 
 
-          <View style={styles.userInfo}>
+          <View
+            style={
+              styles.userInfo
+            }
+          >
 
             <Text
               style={[
                 styles.username,
                 {
-                  color: theme.text,
+                  color:
+                    theme.text,
                 },
               ]}
             >
@@ -120,6 +148,7 @@ export default function DetailsScreen({
 
           {post?.images?.map(
             (image, index) => (
+
               <Image
                 key={index}
 
@@ -127,7 +156,9 @@ export default function DetailsScreen({
                   uri: image,
                 }}
 
-                style={styles.image}
+                style={
+                  styles.image
+                }
               />
             )
           )}
@@ -136,13 +167,18 @@ export default function DetailsScreen({
 
 
         {/* TEXTO */}
-        <View style={styles.content}>
+        <View
+          style={
+            styles.content
+          }
+        >
 
           <Text
             style={[
               styles.description,
               {
-                color: theme.text,
+                color:
+                  theme.text,
               },
             ]}
           >
@@ -156,7 +192,9 @@ export default function DetailsScreen({
         <TouchableOpacity
           activeOpacity={0.8}
 
-          onPress={handleOpenChat}
+          onPress={
+            handleOpenChat
+          }
 
           style={[
             styles.chatButton,
@@ -175,7 +213,11 @@ export default function DetailsScreen({
             color="#ffffff"
           />
 
-          <Text style={styles.chatButtonText}>
+          <Text
+            style={
+              styles.chatButtonText
+            }
+          >
             Conversar
           </Text>
 

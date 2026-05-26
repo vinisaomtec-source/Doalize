@@ -8,8 +8,9 @@ import {
   createNativeStackNavigator,
 } from '@react-navigation/native-stack';
 
-import { Ionicons }
-  from '@expo/vector-icons';
+import {
+  Ionicons,
+} from '@expo/vector-icons';
 
 
 // TELAS
@@ -171,7 +172,6 @@ export default function AppRoutes() {
       />
 
 
-
       {/* PUBLICAR */}
       <Tab.Screen
         name="Publicar"
@@ -191,11 +191,25 @@ export default function AppRoutes() {
       />
 
 
-
       {/* CONTATOS */}
       <Tab.Screen
         name="Contatos"
         component={ContactsStack}
+
+        listeners={({ navigation }) => ({
+
+          tabPress: () => {
+
+            navigation.navigate(
+              'Contatos',
+              {
+                screen:
+                  'ContactsScreen',
+              }
+            );
+          },
+
+        })}
 
         options={{
           tabBarIcon:
@@ -209,7 +223,6 @@ export default function AppRoutes() {
           ),
         }}
       />
-
 
 
       {/* CONTA */}
