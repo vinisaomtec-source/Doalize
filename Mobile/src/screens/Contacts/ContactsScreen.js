@@ -11,80 +11,69 @@ import {
   Image,
 } from 'react-native';
 
-import { useNavigation } from '@react-navigation/native';
+import {
+  useNavigation,
+  useFocusEffect,
+} from '@react-navigation/native';
 
-import Header from '../../components/Header';
+import Header
+  from '../../components/Header';
 
-import { useTheme } from '../../hooks/useTheme';
+import {
+  useTheme,
+} from '../../hooks/useTheme';
 
-import styles from './styles';
+import api
+  from '../../services/api';
+
+import styles
+  from './styles';
 
 
 export default function ContactsScreen() {
 
-  const navigation = useNavigation();
+  const navigation =
+    useNavigation();
 
-  const { theme } = useTheme();
+  const { theme } =
+    useTheme();
 
 
   const [contacts, setContacts] =
     useState([]);
 
 
-  // MOCK TEMPORÁRIO
-  useEffect(() => {
+  // BUSCAR CONVERSAS
+  async function loadContacts() {
 
-    setContacts([
-      {
-        id: 1,
+    try {
 
-        name: 'Maria Silva',
+      const response =
+        await api.get('/chat');
 
-        photo:
-          'https://i.pravatar.cc/150?img=5',
+      setContacts(
+        response.data
+      );
 
-        lastMessage:
-          'Olá, ainda está disponível?',
+    } catch (error) {
 
-        time: '14:32',
+      console.log(
+        'Erro ao buscar contatos:',
+        error.response?.data ||
+        error.message
+      );
+    }
+  }
 
-        unread: 2,
-      },
 
-      {
-        id: 2,
+  // ATUALIZAR AO ABRIR TELA
+  useFocusEffect(
+    React.useCallback(() => {
 
-        name: 'Lucas Almeida',
+      loadContacts();
 
-        photo:
-          'https://i.pravatar.cc/150?img=12',
-
-        lastMessage:
-          'Obrigado pela ajuda!',
-
-        time: '12:15',
-
-        unread: 0,
-      },
-
-      {
-        id: 3,
-
-        name: 'Fernanda Costa',
-
-        photo:
-          'https://i.pravatar.cc/150?img=32',
-
-        lastMessage:
-          'Posso conversar com você?',
-
-        time: 'Ontem',
-
-        unread: 5,
-      },
-    ]);
-
-  }, []);
+    }, [])
+  );
 
 
   // ABRIR CHAT
@@ -93,11 +82,31 @@ export default function ContactsScreen() {
     navigation.navigate(
       'ChatScreen',
       {
-        chatId: contact.id,
+        chatId:
+          contact.id,
 
-        user: contact,
+        user:
+          contact.user,
       }
     );
+  }
+
+
+  // FORMATAR HORA
+  function formatTime(date) {
+
+    if (!date) {
+      return '';
+    }
+
+    return new Date(date)
+      .toLocaleTimeString(
+        'pt-BR',
+        {
+          hour: '2-digit',
+          minute: '2-digit',
+        }
+      );
   }
 
 
@@ -105,16 +114,22 @@ export default function ContactsScreen() {
   function renderItem({ item }) {
 
     return (
+
       <TouchableOpacity
         activeOpacity={0.8}
 
-        onPress={() => openChat(item)}
+        onPress={() =>
+          openChat(item)
+        }
 
         style={[
           styles.contactItem,
           {
-            backgroundColor: theme.card,
-            borderColor: theme.border,
+            backgroundColor:
+              theme.card,
+
+            borderColor:
+              theme.border,
           },
         ]}
       >
@@ -122,7 +137,10 @@ export default function ContactsScreen() {
         {/* FOTO */}
         <Image
           source={{
-            uri: item.photo,
+            uri:
+              item?.user?.photo ||
+
+              'https://i.pravatar.cc/150',
           }}
 
           style={styles.avatar}
@@ -136,11 +154,12 @@ export default function ContactsScreen() {
             style={[
               styles.name,
               {
-                color: theme.text,
+                color:
+                  theme.text,
               },
             ]}
           >
-            {item.name}
+            {item?.user?.name}
           </Text>
 
           <Text
@@ -154,7 +173,8 @@ export default function ContactsScreen() {
               },
             ]}
           >
-            {item.lastMessage}
+            {item?.lastMessage ||
+              'Nenhuma mensagem'}
           </Text>
 
         </View>
@@ -172,29 +192,10 @@ export default function ContactsScreen() {
               },
             ]}
           >
-            {item.time}
+            {formatTime(
+              item?.lastMessageTime
+            )}
           </Text>
-
-
-          {item.unread > 0 && (
-            <View
-              style={[
-                styles.badge,
-                {
-                  backgroundColor:
-                    theme.primary,
-                },
-              ]}
-            >
-
-              <Text
-                style={styles.badgeText}
-              >
-                {item.unread}
-              </Text>
-
-            </View>
-          )}
 
         </View>
 
@@ -204,6 +205,7 @@ export default function ContactsScreen() {
 
 
   return (
+
     <View
       style={[
         styles.container,

@@ -6,9 +6,11 @@ import {
   Image,
 } from 'react-native';
 
-import styles from './styles';
+import {
+  useTheme,
+} from '../../hooks/useTheme';
 
-import { useTheme } from '../../hooks/useTheme';
+import styles from './styles';
 
 
 export default function ChatBubble({
@@ -18,11 +20,54 @@ export default function ChatBubble({
 
   const { theme } = useTheme();
 
+
+  // VERIFICAR SE É MINHA
   const isMine =
-    message?.senderId === currentUserId;
+
+    Number(
+      message?.sender_id
+    ) === Number(currentUserId)
+
+
+    ||
+
+    Number(
+      message?.senderId
+    ) === Number(currentUserId);
+
+
+  // TEXTO DA MENSAGEM
+  const content =
+
+    message?.message ||
+
+    message?.content ||
+
+    '';
+
+
+  // TIPO
+  const type =
+
+    message?.type ||
+
+    (message?.image
+      ? 'image'
+      : 'text');
+
+
+  // HORÁRIO
+  const time =
+
+    message?.created_at ||
+
+    message?.time ||
+
+    '';
 
 
   return (
+
     <View
       style={[
         styles.container,
@@ -34,15 +79,17 @@ export default function ChatBubble({
     >
 
       {/* TEXTO */}
-      {message?.type === 'text' && (
+      {type === 'text' && (
+
         <View
           style={[
             styles.bubble,
 
             {
-              backgroundColor: isMine
-                ? theme.primary
-                : theme.card,
+              backgroundColor:
+                isMine
+                  ? theme.primary
+                  : theme.card,
             },
           ]}
         >
@@ -52,13 +99,14 @@ export default function ChatBubble({
               styles.messageText,
 
               {
-                color: isMine
-                  ? '#ffffff'
-                  : theme.text,
+                color:
+                  isMine
+                    ? '#ffffff'
+                    : theme.text,
               },
             ]}
           >
-            {message?.content}
+            {content}
           </Text>
 
         </View>
@@ -66,11 +114,15 @@ export default function ChatBubble({
 
 
       {/* IMAGEM */}
-      {message?.type === 'image' && (
+      {type === 'image' && (
+
         <Image
           source={{
-            uri: message?.content,
+            uri:
+              message?.image ||
+              content,
           }}
+
           style={styles.image}
         />
       )}
@@ -82,11 +134,12 @@ export default function ChatBubble({
           styles.time,
 
           {
-            color: theme.textSecondary,
+            color:
+              theme.textSecondary,
           },
         ]}
       >
-        {message?.time || ''}
+        {String(time)}
       </Text>
 
     </View>
