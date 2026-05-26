@@ -1,4 +1,6 @@
-import React, { useState } from 'react';
+import React, {
+  useState,
+} from 'react';
 
 import {
   View,
@@ -9,30 +11,53 @@ import {
   Alert,
 } from 'react-native';
 
-import * as ImagePicker from 'expo-image-picker';
+import * as ImagePicker
+  from 'expo-image-picker';
 
-import { Ionicons } from '@expo/vector-icons';
+import {
+  Ionicons,
+} from '@expo/vector-icons';
 
-import Header from '../../components/Header';
+import Header
+  from '../../components/Header';
 
-import Input from '../../components/Input';
+import Input
+  from '../../components/Input';
 
-import Button from '../../components/Button';
+import Button
+  from '../../components/Button';
 
-import { useTheme } from '../../hooks/useTheme';
+import {
+  useTheme,
+} from '../../hooks/useTheme';
 
-import styles from './styles';
+import {
+  useAuth,
+} from '../../hooks/useAuth';
+
+import api
+  from '../../services/api';
+
+import styles
+  from './styles';
 
 
 export default function PublishScreen() {
 
-  const { theme } = useTheme();
+  const { theme } =
+    useTheme();
+
+  const { user } =
+    useAuth();
 
 
-  const [images, setImages] = useState([]);
+  const [images, setImages] =
+    useState([]);
 
-  const [description, setDescription] =
-    useState('');
+  const [
+    description,
+    setDescription,
+  ] = useState('');
 
   const [loading, setLoading] =
     useState(false);
@@ -67,32 +92,56 @@ export default function PublishScreen() {
   // PUBLICAR
   async function handlePublish() {
 
-    if (
-      images.length === 0 ||
-      !description.trim()
-    ) {
+    if (!description.trim()) {
+
       return Alert.alert(
         'Atenção',
-        'Adicione imagens e descrição.'
+        'Digite uma descrição.'
       );
     }
+
 
     try {
 
       setLoading(true);
 
-      // API FUTURA
+
+      const postData = {
+
+        description,
+
+        images,
+
+        user: {
+          id: user.id,
+          name: user.name,
+          photo: user.photo,
+        },
+      };
+
+
+      await api.post(
+        '/posts',
+        postData
+      );
+
 
       Alert.alert(
         'Sucesso',
         'Publicação criada.'
       );
 
+
       setImages([]);
 
       setDescription('');
 
     } catch (error) {
+
+      console.log(
+        error.response?.data ||
+        error.message
+      );
 
       Alert.alert(
         'Erro',
@@ -108,6 +157,7 @@ export default function PublishScreen() {
 
 
   return (
+
     <View
       style={[
         styles.container,
@@ -123,7 +173,9 @@ export default function PublishScreen() {
 
 
       <ScrollView
-        showsVerticalScrollIndicator={false}
+        showsVerticalScrollIndicator={
+          false
+        }
       >
 
         {/* IMAGENS */}
@@ -137,7 +189,7 @@ export default function PublishScreen() {
               },
             ]}
           >
-            Imagens
+            Imagens (Opcional)
           </Text>
 
 
@@ -189,11 +241,14 @@ export default function PublishScreen() {
               false
             }
 
-            style={styles.previewContainer}
+            style={
+              styles.previewContainer
+            }
           >
 
             {images.map(
               (image, index) => (
+
                 <Image
                   key={index}
 
@@ -201,7 +256,9 @@ export default function PublishScreen() {
                     uri: image,
                   }}
 
-                  style={styles.previewImage}
+                  style={
+                    styles.previewImage
+                  }
                 />
               )
             )}
@@ -243,12 +300,18 @@ export default function PublishScreen() {
 
 
         {/* BOTÃO */}
-        <View style={styles.buttonContainer}>
+        <View
+          style={
+            styles.buttonContainer
+          }
+        >
 
           <Button
             title="Publicar"
 
-            onPress={handlePublish}
+            onPress={
+              handlePublish
+            }
 
             loading={loading}
           />

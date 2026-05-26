@@ -28,6 +28,9 @@ class PostController {
           ],
 
           order: [
+
+            ['promoted', 'DESC'],
+
             ['created_at', 'DESC'],
           ],
         });
@@ -62,16 +65,12 @@ class PostController {
       } = req.body;
 
 
-      // VALIDAÇÃO
-      if (
-        !description ||
-        !images ||
-        images.length === 0
-      ) {
+      // DESCRIÇÃO OBRIGATÓRIA
+      if (!description?.trim()) {
 
         return res.status(400).json({
           message:
-            'Preencha todos os campos',
+            'Digite uma descrição',
         });
       }
 
@@ -84,17 +83,37 @@ class PostController {
         description,
 
         images:
-          JSON.stringify(images),
+          images && images.length > 0
+            ? images
+            : [],
+
+        promoted: false,
       });
 
 
-      return res.status(201).json({
+      // BUSCAR POST COMPLETO
+      const createdPost =
+        await Post.findByPk(post.id, {
 
-        message:
-          'Post criado com sucesso',
+          include: [
+            {
+              model: User,
 
-        post,
-      });
+              as: 'user',
+
+              attributes: [
+                'id',
+                'name',
+                'photo',
+              ],
+            },
+          ],
+        });
+
+
+      return res.status(201).json(
+        createdPost
+      );
 
     } catch (error) {
 
@@ -182,7 +201,7 @@ class PostController {
       }
 
 
-      // VERIFICA DONO
+      // DONO
       if (
         post.user_id !== userId
       ) {
@@ -195,13 +214,19 @@ class PostController {
 
 
       await post.update({
-        promoted: true,
+        promoted: !post.promoted,
       });
 
 
       return res.status(200).json({
+
         message:
-          'Post promovido',
+          post.promoted
+            ? 'Post promovido'
+            : 'Promoção removida',
+
+        promoted:
+          post.promoted,
       });
 
     } catch (error) {

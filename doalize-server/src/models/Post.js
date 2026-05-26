@@ -32,13 +32,17 @@ const Post = sequelize.define(
     },
 
 
+    // IMAGENS OPCIONAIS
     images: {
       type: DataTypes.JSON,
 
-      allowNull: false,
+      allowNull: true,
+
+      defaultValue: [],
     },
 
 
+    // PROMOVIDO
     promoted: {
       type: DataTypes.BOOLEAN,
 

@@ -16,6 +16,8 @@ import PostCard from '../../components/PostCard';
 
 import { useTheme } from '../../hooks/useTheme';
 
+import api from '../../services/api';
+
 import styles from './styles';
 
 
@@ -32,7 +34,7 @@ export default function HomeScreen({
     useState(false);
 
 
-  // MOCK TEMPORÁRIO
+  // INIT
   useEffect(() => {
 
     loadPosts();
@@ -47,56 +49,18 @@ export default function HomeScreen({
 
       setRefreshing(true);
 
-      // MOCK
-      const data = [
-        {
-          id: 1,
+      const response =
+        await api.get('/posts');
 
-          description:
-            'Precisamos de ajuda com alimentos e roupas para uma família em situação difícil.',
-
-          createdAt: 'Agora',
-
-          user: {
-            id: 10,
-
-            name: 'Maria Oliveira',
-
-            photo:
-              'https://i.pravatar.cc/150?img=12',
-          },
-
-          images: [
-            'https://images.unsplash.com/photo-1517486808906-6ca8b3f04846?q=80&w=1200',
-          ],
-        },
-
-        {
-          id: 2,
-
-          description:
-            'Estamos arrecadando materiais escolares para crianças da comunidade.',
-
-          createdAt: '2h atrás',
-
-          user: {
-            id: 11,
-
-            name: 'Lucas Santos',
-
-            photo:
-              'https://i.pravatar.cc/150?img=15',
-          },
-
-          images: [
-            'https://images.unsplash.com/photo-1509062522246-3755977927d7?q=80&w=1200',
-          ],
-        },
-      ];
-
-      setPosts(data);
+      setPosts(response.data);
 
     } catch (error) {
+
+      console.log(
+        'Erro ao carregar posts:',
+        error.response?.data ||
+        error.message
+      );
 
       Alert.alert(
         'Erro',
@@ -134,12 +98,33 @@ export default function HomeScreen({
 
 
   // PROMOVER
-  function handlePromote(post) {
+  async function handlePromote(post) {
 
-    Alert.alert(
-      'Promover',
-      `Promover publicação de ${post.user.name}`
-    );
+    try {
+
+      await api.post(
+        `/posts/promote/${post.id}`
+      );
+
+      Alert.alert(
+        'Sucesso',
+        'Publicação promovida.'
+      );
+
+      loadPosts();
+
+    } catch (error) {
+
+      console.log(
+        error.response?.data ||
+        error.message
+      );
+
+      Alert.alert(
+        'Erro',
+        'Não foi possível promover.'
+      );
+    }
   }
 
 
@@ -148,7 +133,15 @@ export default function HomeScreen({
 
     return (
       <PostCard
-        post={item}
+        post={{
+          ...item,
+
+          // FEED MOSTRA SOMENTE A PRIMEIRA IMAGEM
+          images:
+            item.images?.length > 0
+              ? [item.images[0]]
+              : [],
+        }}
 
         onPress={() =>
           handleOpenPost(item)
