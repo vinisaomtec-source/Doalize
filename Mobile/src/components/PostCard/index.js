@@ -13,6 +13,23 @@ import styles from './styles';
 
 import { useTheme } from '../../hooks/useTheme';
 
+import api from '../../services/api';
+
+
+// BASE URL DO SERVIDOR PARA MONTAR URLS ABSOLUTAS DAS IMAGENS
+const BASE_URL = api.defaults.baseURL;
+
+
+// GARANTE URL ABSOLUTA
+function resolveImageUrl(uri) {
+
+  if (!uri) return null;
+
+  if (uri.startsWith('http')) return uri;
+
+  return `${BASE_URL}${uri}`;
+}
+
 
 export default function PostCard({
   post,
@@ -22,6 +39,10 @@ export default function PostCard({
 }) {
 
   const { theme } = useTheme();
+
+  const hasImages =
+    Array.isArray(post?.images) &&
+    post.images.length > 0;
 
 
   return (
@@ -44,8 +65,9 @@ export default function PostCard({
           <Image
             source={{
               uri:
-                post?.user?.photo ||
-                'https://i.pravatar.cc/150',
+                post?.user?.photo
+                  ? resolveImageUrl(post.user.photo)
+                  : 'https://i.pravatar.cc/150',
             }}
             style={styles.avatar}
           />
@@ -71,7 +93,7 @@ export default function PostCard({
                 },
               ]}
             >
-              {post?.createdAt || 'Agora'}
+              {post?.created_at || 'Agora'}
             </Text>
 
           </View>
@@ -81,13 +103,14 @@ export default function PostCard({
       </View>
 
 
-      {/* IMAGEM */}
-      {post?.images?.length > 0 && (
+      {/* IMAGEM — só renderiza se existir, sem deixar espaço */}
+      {hasImages && (
         <Image
           source={{
-            uri: post.images[0],
+            uri: resolveImageUrl(post.images[0]),
           }}
           style={styles.postImage}
+          resizeMode="cover"
         />
       )}
 

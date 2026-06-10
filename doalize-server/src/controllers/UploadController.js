@@ -1,3 +1,8 @@
+import dotenv from 'dotenv';
+
+dotenv.config();
+
+
 class UploadController {
 
   // UPLOAD
@@ -14,10 +19,14 @@ class UploadController {
       }
 
 
-      // URL DA IMAGEM
-      const fileUrl = `${req.protocol}://${req.get(
-        'host'
-      )}/uploads/${req.file.filename}`;
+      // USA O SERVER_IP DO .ENV PARA GARANTIR QUE O CELULAR CONSIGA ACESSAR
+      // SE NÃO TIVER NO .ENV, CAI NO req.get('host') COMO FALLBACK
+      const host =
+        process.env.SERVER_IP ||
+        req.get('host');
+
+      const fileUrl =
+        `${req.protocol}://${host}/uploads/${req.file.filename}`;
 
 
       return res.status(200).json({

@@ -8,12 +8,13 @@ import authMiddleware from '../middlewares/authMiddleware.js';
 const postRoutes = Router();
 
 
+// ROTAS PÚBLICAS
+
 // LISTAR POSTS
 postRoutes.get(
   '/',
   PostController.index
 );
-
 
 // DETALHES DO POST
 postRoutes.get(
@@ -25,20 +26,17 @@ postRoutes.get(
 // ROTAS PRIVADAS
 postRoutes.use(authMiddleware);
 
-
 // CRIAR POST
 postRoutes.post(
   '/',
   PostController.store
 );
 
-
-// PROMOVER POST
-postRoutes.patch(
+// PROMOVER POST — vem ANTES de /:id para o Express não confundir "promote" com um id
+postRoutes.post(
   '/promote/:id',
   PostController.promote
 );
-
 
 // DELETAR POST
 postRoutes.delete(

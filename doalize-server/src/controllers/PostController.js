@@ -3,6 +3,29 @@ import Post from '../models/Post.js';
 import User from '../models/User.js';
 
 
+// GARANTE QUE images SEJA SEMPRE UM ARRAY
+function parseImages(images) {
+
+  if (Array.isArray(images)) return images;
+
+  if (typeof images === 'string') {
+
+    try {
+
+      const parsed = JSON.parse(images);
+
+      return Array.isArray(parsed) ? parsed : [];
+
+    } catch {
+
+      return [];
+    }
+  }
+
+  return [];
+}
+
+
 class PostController {
 
   // LISTAR POSTS
@@ -28,16 +51,22 @@ class PostController {
           ],
 
           order: [
-
             ['promoted', 'DESC'],
-
             ['created_at', 'DESC'],
           ],
         });
 
 
+      const normalizedPosts = posts.map(
+        (post) => ({
+          ...post.toJSON(),
+          images: parseImages(post.images),
+        })
+      );
+
+
       return res.status(200).json(
-        posts
+        normalizedPosts
       );
 
     } catch (error) {
@@ -45,8 +74,7 @@ class PostController {
       console.log(error);
 
       return res.status(500).json({
-        message:
-          'Erro ao buscar posts',
+        message: 'Erro ao buscar posts',
       });
     }
   }
@@ -65,17 +93,14 @@ class PostController {
       } = req.body;
 
 
-      // DESCRIÇÃO OBRIGATÓRIA
       if (!description?.trim()) {
 
         return res.status(400).json({
-          message:
-            'Digite uma descrição',
+          message: 'Digite uma descrição',
         });
       }
 
 
-      // CRIAR POST
       const post = await Post.create({
 
         user_id: userId,
@@ -83,7 +108,7 @@ class PostController {
         description,
 
         images:
-          images && images.length > 0
+          Array.isArray(images) && images.length > 0
             ? images
             : [],
 
@@ -91,7 +116,6 @@ class PostController {
       });
 
 
-      // BUSCAR POST COMPLETO
       const createdPost =
         await Post.findByPk(post.id, {
 
@@ -111,17 +135,17 @@ class PostController {
         });
 
 
-      return res.status(201).json(
-        createdPost
-      );
+      return res.status(201).json({
+        ...createdPost.toJSON(),
+        images: parseImages(createdPost.images),
+      });
 
     } catch (error) {
 
       console.log(error);
 
       return res.status(500).json({
-        message:
-          'Erro ao criar post',
+        message: 'Erro ao criar post',
       });
     }
   }
@@ -157,23 +181,22 @@ class PostController {
       if (!post) {
 
         return res.status(404).json({
-          message:
-            'Post não encontrado',
+          message: 'Post não encontrado',
         });
       }
 
 
-      return res.status(200).json(
-        post
-      );
+      return res.status(200).json({
+        ...post.toJSON(),
+        images: parseImages(post.images),
+      });
 
     } catch (error) {
 
       console.log(error);
 
       return res.status(500).json({
-        message:
-          'Erro ao buscar post',
+        message: 'Erro ao buscar post',
       });
     }
   }
@@ -189,26 +212,20 @@ class PostController {
       const { id } = req.params;
 
 
-      const post =
-        await Post.findByPk(id);
+      const post = await Post.findByPk(id);
 
       if (!post) {
 
         return res.status(404).json({
-          message:
-            'Post não encontrado',
+          message: 'Post não encontrado',
         });
       }
 
 
-      // DONO
-      if (
-        post.user_id !== userId
-      ) {
+      if (post.user_id !== userId) {
 
         return res.status(403).json({
-          message:
-            'Sem permissão',
+          message: 'Sem permissão',
         });
       }
 
@@ -225,8 +242,7 @@ class PostController {
             ? 'Post promovido'
             : 'Promoção removida',
 
-        promoted:
-          post.promoted,
+        promoted: post.promoted,
       });
 
     } catch (error) {
@@ -234,8 +250,7 @@ class PostController {
       console.log(error);
 
       return res.status(500).json({
-        message:
-          'Erro ao promover post',
+        message: 'Erro ao promover post',
       });
     }
   }
@@ -251,26 +266,20 @@ class PostController {
       const { id } = req.params;
 
 
-      const post =
-        await Post.findByPk(id);
+      const post = await Post.findByPk(id);
 
       if (!post) {
 
         return res.status(404).json({
-          message:
-            'Post não encontrado',
+          message: 'Post não encontrado',
         });
       }
 
 
-      // DONO
-      if (
-        post.user_id !== userId
-      ) {
+      if (post.user_id !== userId) {
 
         return res.status(403).json({
-          message:
-            'Sem permissão',
+          message: 'Sem permissão',
         });
       }
 
@@ -279,8 +288,7 @@ class PostController {
 
 
       return res.status(200).json({
-        message:
-          'Post removido',
+        message: 'Post removido',
       });
 
     } catch (error) {
@@ -288,8 +296,7 @@ class PostController {
       console.log(error);
 
       return res.status(500).json({
-        message:
-          'Erro ao remover post',
+        message: 'Erro ao remover post',
       });
     }
   }
