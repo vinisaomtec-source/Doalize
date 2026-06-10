@@ -13,3 +13,19 @@ RODAR O PROJETO
     npm run dev (no backend)
 
 eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNzc5MTk5NDA1LCJleHAiOjE3Nzk4MDQyMDV9._K73pjDQ6i3Wuioa6qHSIXBQv4aM3F_9XrNO2yns8QE
+
+
+
+
+show databases;
+use doalize;
+
+show tables;
+SELECT * FROM users;
+SELECT * FROM chats;
+SELECT * FROM posts;
+SELECT * FROM messages;
+
+
+git config --global user.name vinisaomtec-source
+git config --global user.email vinisaomtec@gmail.com
