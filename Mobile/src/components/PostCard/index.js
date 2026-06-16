@@ -15,21 +15,36 @@ import { useTheme } from '../../hooks/useTheme';
 
 import api from '../../services/api';
 
+const BASE_URL =
+  api.defaults.baseURL;
 
-// BASE URL DO SERVIDOR PARA MONTAR URLS ABSOLUTAS DAS IMAGENS
-const BASE_URL = api.defaults.baseURL;
-
-
-// GARANTE URL ABSOLUTA
 function resolveImageUrl(uri) {
 
-  if (!uri) return null;
+  if (!uri) {
+    return null;
+  }
 
-  if (uri.startsWith('http')) return uri;
+  if (
+    uri.startsWith('http://') ||
+    uri.startsWith('https://')
+  ) {
+    return uri;
+  }
 
-  return `${BASE_URL}${uri}`;
+  if (
+    uri.startsWith('/uploads')
+  ) {
+    return `${BASE_URL}${uri}`;
+  }
+
+  if (
+    uri.startsWith('file://')
+  ) {
+    return uri;
+  }
+
+  return uri;
 }
-
 
 export default function PostCard({
   post,
@@ -38,12 +53,12 @@ export default function PostCard({
   onPromote,
 }) {
 
-  const { theme } = useTheme();
+  const { theme } =
+    useTheme();
 
   const hasImages =
     Array.isArray(post?.images) &&
     post.images.length > 0;
-
 
   return (
     <TouchableOpacity
@@ -52,7 +67,8 @@ export default function PostCard({
       style={[
         styles.container,
         {
-          backgroundColor: theme.card,
+          backgroundColor:
+            theme.card,
         },
       ]}
     >
@@ -66,7 +82,9 @@ export default function PostCard({
             source={{
               uri:
                 post?.user?.photo
-                  ? resolveImageUrl(post.user.photo)
+                  ? resolveImageUrl(
+                      post.user.photo
+                    )
                   : 'https://i.pravatar.cc/150',
             }}
             style={styles.avatar}
@@ -78,22 +96,26 @@ export default function PostCard({
               style={[
                 styles.username,
                 {
-                  color: theme.text,
+                  color:
+                    theme.text,
                 },
               ]}
             >
-              {post?.user?.name || 'Usuário'}
+              {post?.user?.name ||
+                'Usuário'}
             </Text>
 
             <Text
               style={[
                 styles.date,
                 {
-                  color: theme.textSecondary,
+                  color:
+                    theme.textSecondary,
                 },
               ]}
             >
-              {post?.created_at || 'Agora'}
+              {post?.created_at ||
+                'Agora'}
             </Text>
 
           </View>
@@ -102,28 +124,46 @@ export default function PostCard({
 
       </View>
 
-
-      {/* IMAGEM — só renderiza se existir, sem deixar espaço */}
+      {/* IMAGEM */}
       {hasImages && (
         <Image
           source={{
-            uri: resolveImageUrl(post.images[0]),
+            uri:
+              resolveImageUrl(
+                post.images[0]
+              ),
           }}
           style={styles.postImage}
           resizeMode="cover"
+          onError={(e) => {
+
+            console.log(
+              'ERRO IMAGEM:',
+              e.nativeEvent
+            );
+
+            console.log(
+              'URI:',
+              resolveImageUrl(
+                post.images[0]
+              )
+            );
+          }}
         />
       )}
 
-
       {/* TEXTO */}
-      <View style={styles.content}>
+      <View
+        style={styles.content}
+      >
 
         <Text
           numberOfLines={4}
           style={[
             styles.description,
             {
-              color: theme.text,
+              color:
+                theme.text,
             },
           ]}
         >
@@ -132,26 +172,31 @@ export default function PostCard({
 
       </View>
 
-
       {/* AÇÕES */}
-      <View style={styles.actions}>
+      <View
+        style={styles.actions}
+      >
 
-        {/* SHARE */}
         <TouchableOpacity
-          style={styles.actionButton}
+          style={
+            styles.actionButton
+          }
           onPress={onShare}
         >
           <Ionicons
             name="paper-plane-outline"
             size={24}
-            color={theme.primary}
+            color={
+              theme.primary
+            }
           />
 
           <Text
             style={[
               styles.actionText,
               {
-                color: theme.primary,
+                color:
+                  theme.primary,
               },
             ]}
           >
@@ -160,23 +205,26 @@ export default function PostCard({
 
         </TouchableOpacity>
 
-
-        {/* PROMOVER */}
         <TouchableOpacity
-          style={styles.actionButton}
+          style={
+            styles.actionButton
+          }
           onPress={onPromote}
         >
           <Ionicons
             name="rocket-outline"
             size={24}
-            color={theme.primary}
+            color={
+              theme.primary
+            }
           />
 
           <Text
             style={[
               styles.actionText,
               {
-                color: theme.primary,
+                color:
+                  theme.primary,
               },
             ]}
           >
