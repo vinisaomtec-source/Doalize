@@ -1,26 +1,15 @@
 import express from 'express';
-
 import http from 'http';
-
 import cors from 'cors';
-
 import dotenv from 'dotenv';
-
 import path from 'path';
-
 import { fileURLToPath } from 'url';
-
 import sequelize from './config/database.js';
-
 import routes from './routes/index.js';
-
 import { initializeSocket } from './config/socket.js';
-
 import './models/Chat.js';
 
-
 dotenv.config();
-
 
 // __dirname
 const __filename =
@@ -29,19 +18,15 @@ const __filename =
 const __dirname =
   path.dirname(__filename);
 
-
 // APP
 const app = express();
-
 
 // SERVER HTTP
 const server =
   http.createServer(app);
 
-
 // SOCKET
 initializeSocket(server);
-
 
 // MIDDLEWARES
 app.use(cors());
@@ -52,6 +37,14 @@ app.use(express.urlencoded({
   extended: true,
 }));
 
+// LOG DE TODAS AS REQUISIÇÕES
+app.use((req, res, next) => {
+  console.log(
+    `${req.method} ${req.url}`
+  );
+
+  next();
+});
 
 // UPLOADS
 app.use(
@@ -61,20 +54,16 @@ app.use(
   )
 );
 
-
 // ROTAS
 app.use(routes);
 
-
 // TESTE API
 app.get('/', (req, res) => {
-
   return res.json({
     message:
       'DOALIZE API ONLINE 🚀',
   });
 });
-
 
 // MYSQL
 sequelize
@@ -85,8 +74,6 @@ sequelize
       'MySQL conectado'
     );
 
-
-    // CRIAR TABELAS
     await sequelize.sync({
       alter: true,
     });
@@ -102,17 +89,15 @@ sequelize
       'Erro MySQL:',
       error
     );
-  });
 
+  });
 
 // PORTA
 const PORT =
   process.env.PORT || 3333;
 
-
 // START SERVER
 server.listen(PORT, () => {
-
   console.log(
     `Servidor rodando na porta ${PORT}`
   );

@@ -65,7 +65,7 @@ export default function PublishScreen() {
     }
   }
 
-  // FAZER UPLOAD DAS IMAGENS
+  // UPLOAD DAS IMAGENS
   async function uploadImages() {
     const uploadedUrls = [];
 
@@ -82,16 +82,12 @@ export default function PublishScreen() {
       let mimeType =
         'image/jpeg';
 
-      if (
-        extension === 'png'
-      ) {
+      if (extension === 'png') {
         mimeType =
           'image/png';
       }
 
-      if (
-        extension === 'webp'
-      ) {
+      if (extension === 'webp') {
         mimeType =
           'image/webp';
       }
@@ -110,9 +106,27 @@ export default function PublishScreen() {
                   'file://',
                   ''
                 ),
+
           name:
             fileName ||
             `image.${extension}`,
+
+          type:
+            mimeType,
+        }
+      );
+
+      console.log(
+        'UPLOAD URL:',
+        `${api.defaults.baseURL}/upload`
+      );
+
+      console.log(
+        'ENVIANDO:',
+        {
+          uri,
+          name:
+            fileName,
           type:
             mimeType,
         }
@@ -123,14 +137,19 @@ export default function PublishScreen() {
           '/upload',
           formData,
           {
+            headers: {
+              'Content-Type':
+                'multipart/form-data',
+            },
             transformRequest:
               (data) => data,
-            headers: {
-              Accept:
-                'application/json',
-            },
           }
         );
+
+      console.log(
+        'UPLOAD OK:',
+        response.data
+      );
 
       uploadedUrls.push(
         response.data.file.url
